@@ -1,7 +1,9 @@
 export default {
   'resolver.json': `{
   "name": "Figma SDS",
-  "sets": ["base/color.json", "base/size.json", "base/typography.json"],
+  "sets": [
+    { "name": "base", "values": ["base/color.json", "base/size.json", "base/typography.json"] }
+  ],
   "modifiers": [
     {
       "name": "theme",

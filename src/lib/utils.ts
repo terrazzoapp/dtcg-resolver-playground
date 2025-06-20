@@ -1,6 +1,6 @@
 /** Everything is an object in JS */
 export function printType(node: unknown): string {
-  return Array.isArray(node) ? "Array" : typeof node;
+  return Array.isArray(node) ? 'Array' : typeof node;
 }
 
 /**
@@ -22,7 +22,7 @@ export function mergeTokens(a: unknown, b: unknown) {
   // Mismatch: throw error (since null cases have been handled)
   if (typeof a !== typeof b || Array.isArray(a) !== Array.isArray(b)) {
     throw new Error(
-      `Can’t merge type ${printType(a)} with type ${printType(b)}`
+      `Can’t merge type ${printType(a)} with type ${printType(b)}`,
     );
   }
 
@@ -32,13 +32,13 @@ export function mergeTokens(a: unknown, b: unknown) {
   }
 
   // Objects: merge groups, replace tokens (unless they mismatch)
-  if (typeof a === "object" && typeof b === "object") {
-    if ("$type" in a && "$type" in b && a.$type !== b.$type) {
+  if (typeof a === 'object' && typeof b === 'object') {
+    if ('$type' in a && '$type' in b && a.$type !== b.$type) {
       throw new Error(`Can’t merge $type: ${a.$type} with $type: ${b.$type}`);
     }
 
     // Tokens: replace a -> b
-    const isToken = "$value" in a;
+    const isToken = '$value' in a;
     if (isToken) {
       // TODO: we’re not validating the token schema
       return structuredClone(b);
@@ -50,7 +50,7 @@ export function mergeTokens(a: unknown, b: unknown) {
     for (const k of [...keys]) {
       newGroup[k] = mergeTokens(
         (a as Record<string, any>)[k],
-        (b as Record<string, any>)[k]
+        (b as Record<string, any>)[k],
       );
     }
     // TODO: $extensions may get a little weird, should that one be merged or not?
@@ -59,4 +59,46 @@ export function mergeTokens(a: unknown, b: unknown) {
 
   // Everything else: return b
   return b;
+}
+
+/**
+ * Format design tokens spec JSON where $value is always on one line
+ */
+export function prettyJSON(json: any) {
+  let formatted = JSON.stringify(json, undefined, 2);
+  const replacements: [number, number, string][] = [];
+  for (const match of formatted.matchAll(/\{[^{]+"\$value":/g) ?? []) {
+    let bracketCount = 1;
+    const start = match.index;
+    let end = -1;
+    for (let i = start + match[0].length; i < formatted.length; i++) {
+      if (formatted[i] === '{') {
+        bracketCount++;
+        continue;
+      }
+      if (formatted[i] === '}') {
+        bracketCount--;
+        if (bracketCount === 0) {
+          end = i;
+        }
+        continue;
+      }
+      if (end !== -1) {
+        break;
+      }
+    }
+    replacements.push([
+      start,
+      end,
+      formatted
+        .substring(start, end)
+        .replace(/\n+\s+/g, ' ')
+        .replace(/\[\s*/g, '[')
+        .replace(/\\s*]/g, ']'),
+    ]);
+  }
+  for (const [start, end, replacement] of replacements.reverse()) {
+    formatted = `${formatted.substring(0, start)}${replacement}${formatted.substring(end)}`;
+  }
+  return formatted;
 }

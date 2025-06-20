@@ -5,6 +5,11 @@ export default defineConfig({
   plugins: [react()],
   css: {
     transformer: 'lightningcss',
+    lightningcss: {
+      cssModules: {
+        grid: false,
+      },
+    },
   },
   test: {
     environment: 'node',
