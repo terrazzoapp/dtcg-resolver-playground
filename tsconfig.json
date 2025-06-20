@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "erasableSyntaxOnly": true,
+    "jsx": "react-jsx",
+    "forceConsistentCasingInFileNames": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "esnext",
+    "verbatimModuleSyntax": true
+  }
+}
