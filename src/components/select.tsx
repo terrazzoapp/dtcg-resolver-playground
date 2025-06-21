@@ -13,7 +13,7 @@ export function Select({ children, options, ...props }: SelectProps) {
       <label htmlFor={id} className={s.label}>
         {children}
       </label>
-      <select {...props} id={id}>
+      <select className={s.select} {...props} id={id}>
         {options.map(({ label, value }) => (
           <option key={value} value={value}>
             {label}
