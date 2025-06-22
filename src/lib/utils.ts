@@ -122,7 +122,7 @@ export function prettyJSON(json: any) {
   for (const [start, end, replacement] of replacements.reverse()) {
     formatted = `${formatted.substring(0, start)}${replacement}${formatted.substring(end)}`;
   }
-  return formatted;
+  return formatted.replace(/\n+?$/, '\n');
 }
 
 /**
@@ -152,5 +152,8 @@ export function diffTokens(
       original += `${ln}\n`;
     }
   }
-  return { original, modified: tokensString };
+  return {
+    original: original.replace(/\n+?$/, '\n'),
+    modified: tokensString.replace(/\n+?$/, '\n'),
+  };
 }

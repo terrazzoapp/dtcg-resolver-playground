@@ -1,22 +1,23 @@
 import { type HTMLProps, type ReactNode, useId } from 'react';
 import s from './select.module.css';
 
-export interface SelectProps extends HTMLProps<'select'> {
-  children: ReactNode;
+export interface SelectProps
+  extends Omit<HTMLProps<'select'>, 'children' | 'label'> {
+  label: ReactNode;
   options: { label: ReactNode; value: string }[];
 }
 
-export function Select({ children, options, ...props }: SelectProps) {
+export function Select({ label, options, ...props }: SelectProps) {
   const id = useId();
   return (
     <div className={s.container}>
       <label htmlFor={id} className={s.label}>
-        {children}
+        {label}
       </label>
       <select className={s.select} {...props} id={id}>
-        {options.map(({ label, value }) => (
-          <option key={value} value={value}>
-            {label}
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
           </option>
         ))}
       </select>

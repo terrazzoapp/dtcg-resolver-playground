@@ -6,7 +6,7 @@
  */
 import z from 'zod/v4';
 import { mergeTokenSets } from './set.js';
-import type { DTCGTokens, Resolver } from './types.js';
+import type { DTCGTokens, Resolver, ResolverImpl } from './types.js';
 import { getTokenIDs, mergeTokens } from './utils.js';
 
 const tokenMapSchema = z.looseObject({});
@@ -41,7 +41,7 @@ function validateResolver(resolver: unknown): Resolver {
 export function createResolver<T extends Record<string, any> = DTCGTokens>(
   tokenMapRaw: Record<string, T>,
   resolverRaw: Resolver,
-) {
+): ResolverImpl<T> {
   const tokenMap = validateTokenMap<T>(tokenMapRaw);
   const resolver = validateResolver(resolverRaw);
   if (!Object.keys(tokenMap ?? {}).length) {

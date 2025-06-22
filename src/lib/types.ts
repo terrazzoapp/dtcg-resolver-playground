@@ -8,6 +8,12 @@ export interface Resolver {
   modifiers?: Modifier[];
 }
 
+export interface ResolverImpl<T extends Record<string, any>> {
+  tokens: T;
+  getTokens: (id: T) => T;
+  apply(values: Record<string, string>): T;
+}
+
 export interface TokenSet {
   name: string;
   values: string[];
@@ -21,3 +27,5 @@ export interface Modifier {
   }>;
   meta?: Record<string, unknown>;
 }
+
+export type Preset = 'figma-sds' | 'github-primer';
