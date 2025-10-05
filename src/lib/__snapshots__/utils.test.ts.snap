@@ -250,33 +250,28 @@ exports[`prettyJSON > Figma SDS > base/typography.json 1`] = `
 exports[`prettyJSON > Figma SDS > resolver.json 1`] = `
 "{
   "name": "Figma SDS",
-  "sets": [
+  "version": "2025-10-01",
+  "tokens": [
     {
+      "type": "set",
       "name": "base",
-      "values": [
+      "sources": [
         "base/color.json",
         "base/size.json",
         "base/typography.json"
       ]
-    }
-  ],
-  "modifiers": [
+    },
     {
+      "type": "modifier",
       "name": "theme",
-      "values": [
-        {
-          "name": "light",
-          "values": [
-            "theme/light.json"
-          ]
-        },
-        {
-          "name": "dark",
-          "values": [
-            "theme/dark.json"
-          ]
-        }
-      ]
+      "context": {
+        "light": [
+          "theme/light.json"
+        ],
+        "dark": [
+          "theme/dark.json"
+        ]
+      }
     }
   ]
 }"
@@ -3201,10 +3196,12 @@ exports[`prettyJSON > GitHub Primer > functional/typography/typography.json 1`] 
 exports[`prettyJSON > GitHub Primer > resolver.json 1`] = `
 "{
   "name": "GitHub Primer",
-  "sets": [
+  "version": "2025-10-01",
+  "tokens": [
     {
+      "type": "set",
       "name": "base",
-      "values": [
+      "sources": [
         "base/motion/easing.json",
         "base/motion/timing.json",
         "base/size/size.json",
@@ -3214,8 +3211,9 @@ exports[`prettyJSON > GitHub Primer > resolver.json 1`] = `
       ]
     },
     {
+      "type": "set",
       "name": "functional",
-      "values": [
+      "sources": [
         "functional/border/border.json",
         "functional/color/bgColor.json",
         "functional/color/borderColor.json",
@@ -3231,71 +3229,47 @@ exports[`prettyJSON > GitHub Primer > resolver.json 1`] = `
         "functional/size/viewport.json",
         "functional/typography/typography.json"
       ]
-    }
-  ],
-  "modifiers": [
-    {
-      "name": "theme",
-      "values": [
-        {
-          "name": "light",
-          "values": []
-        },
-        {
-          "name": "light (high contrast)",
-          "values": [
-            "base/color/light/light.high-contrast.json",
-            "functional/color/control.light-high-contrast.json",
-            "functional/color/fgColor.light-high-contrast.json"
-          ]
-        },
-        {
-          "name": "dark",
-          "values": [
-            "base/color/dark/dark.json",
-            "base/color/dark/display-dark.json",
-            "functional/color/fgColor.dark.json",
-            "functional/color/control.dark.json"
-          ]
-        },
-        {
-          "name": "dark dimmed",
-          "values": [
-            "base/color/dark/dark.dimmed.json",
-            "functional/color/control.dark-dimmed.json",
-            "functional/color/fgColor.dark-dimmed.json"
-          ]
-        },
-        {
-          "name": "dark (high contrast)",
-          "values": [
-            "base/color/dark/dark.high-contrast.json",
-            "functional/color/control.dark-high-contrast.json",
-            "functional/color/fgColor.dark-high-contrast.json"
-          ]
-        }
-      ]
     },
     {
+      "type": "modifier",
+      "name": "theme",
+      "context": {
+        "light": [],
+        "light (high contrast)": [
+          "base/color/light/light.high-contrast.json",
+          "functional/color/control.light-high-contrast.json",
+          "functional/color/fgColor.light-high-contrast.json"
+        ],
+        "dark": [
+          "base/color/dark/dark.json",
+          "base/color/dark/display-dark.json",
+          "functional/color/fgColor.dark.json",
+          "functional/color/control.dark.json"
+        ],
+        "dark dimmed": [
+          "base/color/dark/dark.dimmed.json",
+          "functional/color/control.dark-dimmed.json",
+          "functional/color/fgColor.dark-dimmed.json"
+        ],
+        "dark (high contrast)": [
+          "base/color/dark/dark.high-contrast.json",
+          "functional/color/control.dark-high-contrast.json",
+          "functional/color/fgColor.dark-high-contrast.json"
+        ]
+      }
+    },
+    {
+      "type": "modifier",
       "name": "size",
-      "values": [
-        {
-          "name": "default",
-          "values": []
-        },
-        {
-          "name": "coarse",
-          "values": [
-            "functional/size/size-coarse.json"
-          ]
-        },
-        {
-          "name": "fine",
-          "values": [
-            "functional/size/size-fine.json"
-          ]
-        }
-      ]
+      "context": {
+        "default": [],
+        "coarse": [
+          "functional/size/size-coarse.json"
+        ],
+        "fine": [
+          "functional/size/size-fine.json"
+        ]
+      }
     }
   ]
 }"
