@@ -3,28 +3,31 @@ export type DTCGTokens = Record<string, any>;
 
 export interface Resolver {
   name?: string;
+  version: '2025-10-01';
   description?: string;
-  sets: TokenSet[];
-  modifiers?: Modifier[];
+  tokens: (string | TokenSet | Modifier)[];
 }
 
 export interface ResolverImpl<T extends Record<string, any>> {
   tokens: T;
-  getTokens: (id: T) => T;
-  apply(values: Record<string, string>): T;
+  getTokens: (id: string) => T;
+  apply(
+    values: Record<string, string>,
+  ): T & { $extensions?: { modified: string[] } };
 }
 
 export interface TokenSet {
+  type: 'set';
   name: string;
-  values: string[];
+  sources: string[];
+  meta?: Record<string, unknown>;
 }
 
 export interface Modifier {
-  name?: string;
-  values: Array<{
-    name: string;
-    values: string[];
-  }>;
+  type: 'modifier';
+  name: string;
+  context: Record<string, string[]>;
+  default?: string;
   meta?: Record<string, unknown>;
 }
 

@@ -25,19 +25,20 @@
 export default {
   'resolver.json': JSON.stringify({
     name: 'Figma SDS',
-    sets: [
+    version: '2025-10-01',
+    tokens: [
       {
+        type: 'set',
         name: 'base',
-        values: ['base/color.json', 'base/size.json', 'base/typography.json'],
+        sources: ['base/color.json', 'base/size.json', 'base/typography.json'],
       },
-    ],
-    modifiers: [
       {
+        type: 'modifier',
         name: 'theme',
-        values: [
-          { name: 'light', values: ['theme/light.json'] },
-          { name: 'dark', values: ['theme/dark.json'] },
-        ],
+        context: {
+          light: ['theme/light.json'],
+          dark: ['theme/dark.json'],
+        },
       },
     ],
   }),
