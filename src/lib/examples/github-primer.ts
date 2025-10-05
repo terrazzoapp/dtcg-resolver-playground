@@ -25,10 +25,12 @@
 export default {
   'resolver.json': JSON.stringify({
     name: 'GitHub Primer',
-    sets: [
+    version: '2025-10-01',
+    tokens: [
       {
+        type: 'set',
         name: 'base',
-        values: [
+        sources: [
           'base/motion/easing.json',
           'base/motion/timing.json',
           'base/size/size.json',
@@ -38,8 +40,9 @@ export default {
         ],
       },
       {
+        type: 'set',
         name: 'functional',
-        values: [
+        sources: [
           'functional/border/border.json',
           'functional/color/bgColor.json',
           'functional/color/borderColor.json',
@@ -56,54 +59,42 @@ export default {
           'functional/typography/typography.json',
         ],
       },
-    ],
-    modifiers: [
       {
+        type: 'modifier',
         name: 'theme',
-        values: [
-          { name: 'light', values: [] },
-          {
-            name: 'light (high contrast)',
-            values: [
-              'base/color/light/light.high-contrast.json',
-              'functional/color/control.light-high-contrast.json',
-              'functional/color/fgColor.light-high-contrast.json',
-            ],
-          },
-          {
-            name: 'dark',
-            values: [
-              'base/color/dark/dark.json',
-              'base/color/dark/display-dark.json',
-              'functional/color/fgColor.dark.json',
-              'functional/color/control.dark.json',
-            ],
-          },
-          {
-            name: 'dark dimmed',
-            values: [
-              'base/color/dark/dark.dimmed.json',
-              'functional/color/control.dark-dimmed.json',
-              'functional/color/fgColor.dark-dimmed.json',
-            ],
-          },
-          {
-            name: 'dark (high contrast)',
-            values: [
-              'base/color/dark/dark.high-contrast.json',
-              'functional/color/control.dark-high-contrast.json',
-              'functional/color/fgColor.dark-high-contrast.json',
-            ],
-          },
-        ],
+        context: {
+          light: [],
+          'light (high contrast)': [
+            'base/color/light/light.high-contrast.json',
+            'functional/color/control.light-high-contrast.json',
+            'functional/color/fgColor.light-high-contrast.json',
+          ],
+          dark: [
+            'base/color/dark/dark.json',
+            'base/color/dark/display-dark.json',
+            'functional/color/fgColor.dark.json',
+            'functional/color/control.dark.json',
+          ],
+          'dark dimmed': [
+            'base/color/dark/dark.dimmed.json',
+            'functional/color/control.dark-dimmed.json',
+            'functional/color/fgColor.dark-dimmed.json',
+          ],
+          'dark (high contrast)': [
+            'base/color/dark/dark.high-contrast.json',
+            'functional/color/control.dark-high-contrast.json',
+            'functional/color/fgColor.dark-high-contrast.json',
+          ],
+        },
       },
       {
+        type: 'modifier',
         name: 'size',
-        values: [
-          { name: 'default', values: [] },
-          { name: 'coarse', values: ['functional/size/size-coarse.json'] },
-          { name: 'fine', values: ['functional/size/size-fine.json'] },
-        ],
+        context: {
+          default: [],
+          coarse: ['functional/size/size-coarse.json'],
+          fine: ['functional/size/size-fine.json'],
+        },
       },
     ],
   }),

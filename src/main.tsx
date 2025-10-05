@@ -3,12 +3,18 @@ import { createRoot } from 'react-dom/client';
 import { ZodError } from 'zod/v4';
 import Nav from './components/nav.js';
 import { createResolver } from './lib/create-resolver';
-import type { Preset, Resolver, ResolverImpl } from './lib/types';
+import type { Modifier, Preset, Resolver, ResolverImpl } from './lib/types';
 import './styles/global.css';
 import Files from './components/files';
 import ResolverResult from './components/resolver-result';
 import { prettyJSON } from './lib/utils';
 import s from './main.module.css';
+
+function getModifiers(unparsedJson: string): Modifier[] {
+  return (JSON.parse(unparsedJson) as Resolver).tokens.filter(
+    (t): t is Modifier => typeof t === 'object' && t.type === 'modifier',
+  );
+}
 
 // lazy-loaded design systems
 const DESIGN_SYSTEM = {
@@ -41,9 +47,7 @@ function App() {
   const modifiers = useMemo(
     () =>
       // loading hack: fall back to placeholder during initial load
-      files['resolver.json']
-        ? JSON.parse(files['resolver.json']).modifiers
-        : [],
+      files['resolver.json'] ? getModifiers(files['resolver.json']) : [],
     [JSON.stringify(files['resolver.json'])],
   );
 
@@ -64,9 +68,10 @@ function App() {
 
       // reset modifier values
       const nextValues = Object.fromEntries(
-        (JSON.parse(mod.default['resolver.json']) as Resolver).modifiers?.map(
-          (m) => [m.name, m.values[0].name],
-        ) ?? [],
+        getModifiers(mod.default['resolver.json'])?.map((m) => [
+          m.name,
+          Object.keys(m.context)[0],
+        ]) ?? [],
       );
       setValues(nextValues);
     })();

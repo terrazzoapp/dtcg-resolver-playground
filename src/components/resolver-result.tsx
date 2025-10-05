@@ -1,14 +1,14 @@
 import { DiffEditor } from '@monaco-editor/react';
 import { type Dispatch, type SetStateAction, useMemo } from 'react';
 import { DEFAULT_MONACO_OPTIONS } from '../lib/monaco';
-import type { Resolver, ResolverImpl } from '../lib/types';
+import type { Modifier, Resolver, ResolverImpl } from '../lib/types';
 import { diffTokens, prettyJSON } from '../lib/utils';
 import s from './resolver-result.module.css';
 import { Select } from './select';
 
 export interface ResolverResultProps {
   resolver: ResolverImpl<Record<string, any>>;
-  modifiers: NonNullable<Resolver['modifiers']>;
+  modifiers: NonNullable<Modifier[]>;
   values: Record<string, string>;
   setValues: Dispatch<SetStateAction<Record<string, string>>>;
 }
@@ -32,9 +32,9 @@ export default function ResolverResult({
           <Select
             key={modifier.name}
             label={modifier.name}
-            options={modifier.values.map((value) => ({
-              label: value.name,
-              value: value.name,
+            options={Object.keys(modifier.context).map((value) => ({
+              label: value,
+              value: value,
             }))}
             onChange={(e) =>
               setValues((prev) => ({
