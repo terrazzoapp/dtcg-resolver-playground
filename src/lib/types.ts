@@ -3,7 +3,7 @@ export type DTCGTokens = Record<string, any>;
 
 export interface Resolver {
   name?: string;
-  version: "2025.10";
+  version: '2025.10';
   description?: string;
   sets?: Record<string, TokensSet>;
   modifiers?: Record<string, Modifier>;
@@ -31,4 +31,4 @@ export interface Modifier {
   default?: string;
 }
 
-export type Preset = "figma-sds" | "github-primer";
+export type Preset = 'figma-sds' | 'github-primer';

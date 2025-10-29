@@ -1,11 +1,11 @@
-import { DiffEditor } from "@monaco-editor/react";
-import eq from "fast-deep-equal";
-import { type Dispatch, type SetStateAction, useMemo } from "react";
-import { DEFAULT_MONACO_OPTIONS } from "../lib/monaco";
-import type { Modifier, ResolverImpl } from "../lib/types";
-import { diffTokens, flatten, prettyJSON } from "../lib/utils";
-import s from "./resolver-result.module.css";
-import { Select } from "./select";
+import { DiffEditor } from '@monaco-editor/react';
+import eq from 'fast-deep-equal';
+import { type Dispatch, type SetStateAction, useMemo } from 'react';
+import { DEFAULT_MONACO_OPTIONS } from '../lib/monaco';
+import type { Modifier, ResolverImpl } from '../lib/types';
+import { diffTokens, flatten, prettyJSON } from '../lib/utils';
+import s from './resolver-result.module.css';
+import { Select } from './select';
 
 export interface ResolverResultProps {
   resolver: ResolverImpl<Record<string, any>>;
@@ -24,7 +24,7 @@ export default function ResolverResult({
 }: ResolverResultProps) {
   const finalTokens = useMemo(() => {
     if (!Object.keys(input).length) {
-      return { original: "", modified: "" };
+      return { original: '', modified: '' };
     }
     const modified = new Set<string>();
     const original = flatten(resolver.apply(defaultInput));

@@ -4,16 +4,16 @@
  * of sync with the specification. In case of a deviation, prefer
  * the official specification over this example library.
  */
-import z from "zod/v4";
-import type { DTCGTokens, Resolver, ResolverImpl } from "./types.js";
-import { mergeTokens } from "./utils.js";
+import z from 'zod/v4';
+import type { DTCGTokens, Resolver, ResolverImpl } from './types.js';
+import { mergeTokens } from './utils.js';
 
 const tokenMapSchema = z.looseObject({});
 
 function validateTokenMap<T extends Record<string, any>>(tokenMap: unknown): T {
   return tokenMapSchema.parse(tokenMap) as T;
 }
-const refObject = z.object({ $ref: z.string({ error: "required" }) });
+const refObject = z.object({ $ref: z.string({ error: 'required' }) });
 const tokenSetSchema = z.object({
   description: z.optional(z.string()),
   sources: z.array(refObject, { error: 'Missing "sources"' }),
@@ -21,21 +21,21 @@ const tokenSetSchema = z.object({
 const modifierSetSchema = z.object({
   description: z.optional(z.string()),
   contexts: z.record(
-    z.string({ error: "Expected string" }),
+    z.string({ error: 'Expected string' }),
     z.array(refObject),
     {
       error: 'Missing "contexts"',
     },
   ),
-  default: z.optional(z.string({ error: "Expected string" })),
+  default: z.optional(z.string({ error: 'Expected string' })),
 });
 const resolverSchema = z.object({
   name: z.string({ error: 'Missing "name"' }),
-  version: z.literal("2025.10", { error: "Unsupported version" }),
-  description: z.optional(z.string({ error: "Expected string" })),
+  version: z.literal('2025.10', { error: 'Unsupported version' }),
+  description: z.optional(z.string({ error: 'Expected string' })),
   sets: z.optional(z.record(z.string(), tokenSetSchema)),
   modifiers: z.optional(z.record(z.string(), modifierSetSchema)),
-  resolutionOrder: z.array(refObject, { error: "missing resolutionOrder" }),
+  resolutionOrder: z.array(refObject, { error: 'missing resolutionOrder' }),
 });
 
 function validateResolver(resolver: unknown): Resolver {
@@ -44,7 +44,7 @@ function validateResolver(resolver: unknown): Resolver {
   } catch (err) {
     if (err instanceof z.ZodError) {
       console.error(
-        "Resolver validation:",
+        'Resolver validation:',
         JSON.stringify(err.format(), null, 2),
       );
     } else {
@@ -80,8 +80,8 @@ export function createResolver<T extends Record<string, any> = DTCGTokens>(
     apply(input) {
       let tokens = {} as T;
       for (const next of resolver.resolutionOrder) {
-        if (next.$ref.includes("#/sets/")) {
-          const set = this.getSet(next.$ref.replace("#/sets/", ""));
+        if (next.$ref.includes('#/sets/')) {
+          const set = this.getSet(next.$ref.replace('#/sets/', ''));
           for (const source of set.sources) {
             if (!tokenMapRaw[source.$ref]) {
               throw new Error(`Could not resolve ${source.$ref}`);
@@ -91,10 +91,10 @@ export function createResolver<T extends Record<string, any> = DTCGTokens>(
           continue;
         }
 
-        const modifierName = next.$ref.replace("#/modifiers/", "");
+        const modifierName = next.$ref.replace('#/modifiers/', '');
         const modifier = this.getModifier(modifierName);
         if (
-          typeof modifier.default === "string" &&
+          typeof modifier.default === 'string' &&
           !(modifier.default in modifier.contexts)
         ) {
           throw new Error(
@@ -102,8 +102,8 @@ export function createResolver<T extends Record<string, any> = DTCGTokens>(
           );
         }
         if (
-          typeof input[modifierName] !== "string" &&
-          typeof modifier.default !== "string"
+          typeof input[modifierName] !== 'string' &&
+          typeof modifier.default !== 'string'
         ) {
           throw new Error(
             `${modifierName}: Expected string, received ${input[modifierName]}`,
