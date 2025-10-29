@@ -1,4 +1,4 @@
-# Design Token Playground
+# DTCG Resolver Playground
 
 ![screenshot showing side-by-side code editors in browser](./.github/screenshot.png)
 
