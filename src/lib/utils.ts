@@ -1,6 +1,6 @@
 /** Everything is an object in JS */
 export function printType(node: unknown): string {
-  return Array.isArray(node) ? 'Array' : typeof node;
+  return Array.isArray(node) ? "Array" : typeof node;
 }
 
 /**
@@ -32,13 +32,13 @@ export function mergeTokens(a: unknown, b: unknown) {
   }
 
   // Objects: merge groups, replace tokens (unless they mismatch)
-  if (typeof a === 'object' && typeof b === 'object') {
-    if ('$type' in a && '$type' in b && a.$type !== b.$type) {
+  if (typeof a === "object" && typeof b === "object") {
+    if ("$type" in a && "$type" in b && a.$type !== b.$type) {
       throw new Error(`Can’t merge $type: ${a.$type} with $type: ${b.$type}`);
     }
 
     // Tokens: replace a -> b
-    const isToken = '$value' in a;
+    const isToken = "$value" in a;
     if (isToken) {
       // TODO: we’re not validating the token schema
       return structuredClone(b);
@@ -65,15 +65,15 @@ export function mergeTokens(a: unknown, b: unknown) {
 export function getTokenIDs(json: any): Set<string> {
   const ids = new Set<string>();
   function walk(node: unknown, path: string[] = []) {
-    if (!node || typeof node !== 'object') {
+    if (!node || typeof node !== "object") {
       return;
     }
     for (const [k, v] of Object.entries(node)) {
-      if (!v || typeof v !== 'object') {
+      if (!v || typeof v !== "object") {
         continue;
       }
       if (v.$value) {
-        ids.add([...path, k].join('.'));
+        ids.add([...path, k].join("."));
       } else {
         walk(v, [...path, k]);
       }
@@ -81,6 +81,28 @@ export function getTokenIDs(json: any): Set<string> {
   }
   walk(json);
   return ids;
+}
+
+/** Flatten deeply-nested JSON into key–value map */
+export function flatten(json: any): Record<string, any> {
+  const flat: Record<string, any> = {};
+  function walk(node: unknown, path: string[] = []) {
+    if (!node || typeof node !== "object") {
+      return;
+    }
+    for (const [k, v] of Object.entries(node)) {
+      if (!v || typeof v !== "object") {
+        continue;
+      }
+      if (v.$value) {
+        flat[[...path, k].join(".")] = v.$value;
+      } else {
+        walk(v, [...path, k]);
+      }
+    }
+  }
+  walk(json);
+  return flat;
 }
 
 /**
@@ -94,11 +116,11 @@ export function prettyJSON(json: any) {
     const start = match.index;
     let end = -1;
     for (let i = start + match[0].length; i < formatted.length; i++) {
-      if (formatted[i] === '{') {
+      if (formatted[i] === "{") {
         bracketCount++;
         continue;
       }
-      if (formatted[i] === '}') {
+      if (formatted[i] === "}") {
         bracketCount--;
         if (bracketCount === 0) {
           end = i;
@@ -114,15 +136,15 @@ export function prettyJSON(json: any) {
       end,
       formatted
         .substring(start, end)
-        .replace(/\n+\s+/g, ' ')
-        .replace(/\[\s+/g, '[')
-        .replace(/\s+]/g, ']'),
+        .replace(/\n+\s+/g, " ")
+        .replace(/\[\s+/g, "[")
+        .replace(/\s+]/g, "]"),
     ]);
   }
   for (const [start, end, replacement] of replacements.reverse()) {
     formatted = `${formatted.substring(0, start)}${replacement}${formatted.substring(end)}`;
   }
-  return formatted.replace(/\n+?$/, '\n');
+  return formatted.replace(/\n+?$/, "\n");
 }
 
 /**
@@ -134,17 +156,17 @@ export function diffTokens(
   tokensString: string,
   modifiedIDs: Set<string>,
 ): { original: string; modified: string } {
-  let original = '';
-  const lines = tokensString.split('\n');
+  let original = "";
+  const lines = tokensString.split("\n");
   const tokenParts: string[] = [];
   for (const ln of lines) {
     const spaces = ln.indexOf('"');
     if (spaces > 0) {
       const i = (spaces - 2) / 2;
       tokenParts.splice(i);
-      const [name] = ln.split(':');
+      const [name] = ln.split(":");
       tokenParts.push(JSON.parse(name));
-      const id = tokenParts.join('.');
+      const id = tokenParts.join(".");
       if (!modifiedIDs.has(id)) {
         original += `${ln}\n`;
       }
@@ -153,7 +175,7 @@ export function diffTokens(
     }
   }
   return {
-    original: original.replace(/\n+?$/, '\n'),
-    modified: tokensString.replace(/\n+?$/, '\n'),
+    original: original.replace(/\n+?$/, "\n"),
+    modified: tokensString.replace(/\n+?$/, "\n"),
   };
 }

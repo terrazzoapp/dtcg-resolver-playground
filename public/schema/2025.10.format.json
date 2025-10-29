@@ -1,0 +1,123 @@
+{
+  "$defs": {
+    "Group": {
+      "type": "object",
+      "properties": {
+        "$root": { "$ref": "#/$defs/Token" }
+      },
+      "additionalProperties": {}
+    },
+    "Token": {
+      "type": [
+        "#/$defs/ColorToken",
+        "#/$defs/CubicBezierToken",
+        "#/$defs/DimensionToken",
+        "#/$defs/DurationToken",
+        "#/$defs/FontFamilyToken",
+        "#/$defs/FontWeightToken",
+        "#/$defs/NumberToken"
+      ]
+    },
+    "ColorToken": {
+      "type": "object",
+      "properties": {
+        "$type": { "type": "string", "enum": ["color"] },
+        "$value": { "$ref": "#/$defs/ColorTokenValue" }
+      },
+      "required": ["$value"]
+    },
+    "ColorTokenValue": {
+      "type": "object",
+      "properties": {
+        "colorSpace": {
+          "type": "string",
+          "enum": [
+            "a98-rgb",
+            "display-p3",
+            "hsl",
+            "hwb",
+            "lab",
+            "lch",
+            "oklab",
+            "oklch",
+            "prophoto-rgb",
+            "rec2020",
+            "srgb",
+            "srgb-linear",
+            "xyz-d50",
+            "xyz-d65"
+          ]
+        },
+        "components": { "type": "array", "items": { "type": "number" } },
+        "alpha": { "type": "number" },
+        "hex": { "type": "string" }
+      },
+      "required": ["colorSpace", "components"]
+    },
+    "CubicBezierToken": {
+      "type": "object",
+      "properties": {
+        "$type": { "type": "string", "enum": ["cubicBezier"] },
+        "$value": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minLength": 4,
+          "maxLength": 4
+        }
+      },
+      "required": ["$type", "$value"]
+    },
+    "DimensionToken": {
+      "type": "object",
+      "properties": {
+        "$type": { "type": "string", "enum": ["dimension"] },
+        "$value": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "enum": ["px", "rem"] }
+          }
+        }
+      },
+      "required": ["$type", "$value"]
+    },
+    "DurationToken": {
+      "type": "object",
+      "properties": {
+        "$type": { "type": "string", "enum": ["duration"] },
+        "$value": {
+          "type": "object",
+          "properties": {
+            "value": { "type": "number" },
+            "unit": { "type": "string", "enum": ["ms", "s"] }
+          }
+        }
+      },
+      "required": ["$type", "$value"]
+    },
+    "FontFamilyToken": {
+      "type": "object",
+      "properties": {
+        "$type": { "type": "string", "enum": ["fontFamily"] },
+        "$value": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["$type", "$value"]
+    },
+    "FontWeightToken": {
+      "type": "object",
+      "properties": {
+        "$type": { "type": "string", "enum": ["fontWeight"] },
+        "$value": { "type": ["number", "string"] }
+      },
+      "required": ["$type", "$value"]
+    },
+    "NumberToken": {
+      "type": "object",
+      "properties": {
+        "$type": { "type": "string", "enum": ["number"] },
+        "$value": { "type": "number" }
+      },
+      "required": ["$type", "$value"]
+    }
+  }
+}

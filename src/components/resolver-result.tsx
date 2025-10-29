@@ -1,29 +1,41 @@
-import { DiffEditor } from '@monaco-editor/react';
-import { type Dispatch, type SetStateAction, useMemo } from 'react';
-import { DEFAULT_MONACO_OPTIONS } from '../lib/monaco';
-import type { Modifier, Resolver, ResolverImpl } from '../lib/types';
-import { diffTokens, prettyJSON } from '../lib/utils';
-import s from './resolver-result.module.css';
-import { Select } from './select';
+import { DiffEditor } from "@monaco-editor/react";
+import eq from "fast-deep-equal";
+import { type Dispatch, type SetStateAction, useMemo } from "react";
+import { DEFAULT_MONACO_OPTIONS } from "../lib/monaco";
+import type { Modifier, ResolverImpl } from "../lib/types";
+import { diffTokens, flatten, prettyJSON } from "../lib/utils";
+import s from "./resolver-result.module.css";
+import { Select } from "./select";
 
 export interface ResolverResultProps {
   resolver: ResolverImpl<Record<string, any>>;
-  modifiers: NonNullable<Modifier[]>;
-  values: Record<string, string>;
-  setValues: Dispatch<SetStateAction<Record<string, string>>>;
+  modifiers: NonNullable<(Modifier & { name: string })[]>;
+  input: Record<string, string>;
+  setInput: Dispatch<SetStateAction<Record<string, string>>>;
+  defaultInput: Record<string, string>;
 }
 
 export default function ResolverResult({
   resolver,
   modifiers,
-  values,
-  setValues,
+  input,
+  defaultInput,
+  setInput,
 }: ResolverResultProps) {
   const finalTokens = useMemo(() => {
-    const { $extensions = {}, ...result } = resolver.apply(values);
-    const modified: string[] = $extensions.modified ?? [];
-    return diffTokens(prettyJSON(result), new Set(modified));
-  }, [resolver, values]);
+    if (!Object.keys(input).length) {
+      return { original: "", modified: "" };
+    }
+    const modified = new Set<string>();
+    const original = flatten(resolver.apply(defaultInput));
+    const actual = resolver.apply(input);
+    for (const [id, value] of Object.entries(flatten(actual))) {
+      if (!eq(value, original[id])) {
+        modified.add(id);
+      }
+    }
+    return diffTokens(prettyJSON(actual), modified);
+  }, [resolver, input]);
 
   return (
     <div className={s.container}>
@@ -32,12 +44,12 @@ export default function ResolverResult({
           <Select
             key={modifier.name}
             label={modifier.name}
-            options={Object.keys(modifier.context).map((value) => ({
+            options={Object.keys(modifier.contexts).map((value) => ({
               label: value,
               value: value,
             }))}
             onChange={(e) =>
-              setValues((prev) => ({
+              setInput((prev) => ({
                 ...prev,
                 [modifier.name!]: (e.target as HTMLSelectElement).value,
               }))

@@ -4,46 +4,38 @@
  * of sync with the specification. In case of a deviation, prefer
  * the official specification over this example library.
  */
-import z from 'zod/v4';
-import { mergeTokenSets } from './set.js';
-import type { DTCGTokens, Modifier, Resolver, ResolverImpl } from './types.js';
-import { getTokenIDs, mergeTokens } from './utils.js';
+import z from "zod/v4";
+import type { DTCGTokens, Resolver, ResolverImpl } from "./types.js";
+import { mergeTokens } from "./utils.js";
 
 const tokenMapSchema = z.looseObject({});
 
 function validateTokenMap<T extends Record<string, any>>(tokenMap: unknown): T {
   return tokenMapSchema.parse(tokenMap) as T;
 }
+const refObject = z.object({ $ref: z.string({ error: "required" }) });
 const tokenSetSchema = z.object({
-  type: z.literal('set', { error: 'Unsupported type' }),
-  name: z.string({ error: 'Missing "name"' }),
-  sources: z.array(z.string({ error: 'Expected string' }), {
-    error: 'Missing "sources"',
-  }),
+  description: z.optional(z.string()),
+  sources: z.array(refObject, { error: 'Missing "sources"' }),
 });
 const modifierSetSchema = z.object({
-  type: z.literal('modifier', { error: 'Unsupported type' }),
-  name: z.string({ error: 'Missing "name"' }),
-  context: z.record(
-    z.string({ error: 'Expected string' }),
-    z.array(z.string({ error: 'Expected string' })),
+  description: z.optional(z.string()),
+  contexts: z.record(
+    z.string({ error: "Expected string" }),
+    z.array(refObject),
     {
-      error: 'Missing "context"',
+      error: 'Missing "contexts"',
     },
   ),
-  default: z.optional(z.string({ error: 'Expected string' })),
+  default: z.optional(z.string({ error: "Expected string" })),
 });
 const resolverSchema = z.object({
   name: z.string({ error: 'Missing "name"' }),
-  version: z.literal('2025-10-01', { error: 'Unsupported version' }),
-  description: z.optional(z.string({ error: 'Expected string' })),
-  tokens: z.array(
-    z.union([
-      z.string(),
-      z.discriminatedUnion('type', [tokenSetSchema, modifierSetSchema]),
-    ]),
-    { error: 'Missing "tokens"' },
-  ),
+  version: z.literal("2025.10", { error: "Unsupported version" }),
+  description: z.optional(z.string({ error: "Expected string" })),
+  sets: z.optional(z.record(z.string(), tokenSetSchema)),
+  modifiers: z.optional(z.record(z.string(), modifierSetSchema)),
+  resolutionOrder: z.array(refObject, { error: "missing resolutionOrder" }),
 });
 
 function validateResolver(resolver: unknown): Resolver {
@@ -52,7 +44,7 @@ function validateResolver(resolver: unknown): Resolver {
   } catch (err) {
     if (err instanceof z.ZodError) {
       console.error(
-        'Resolver validation:',
+        "Resolver validation:",
         JSON.stringify(err.format(), null, 2),
       );
     } else {
@@ -72,79 +64,62 @@ export function createResolver<T extends Record<string, any> = DTCGTokens>(
     throw new Error(`Empty token map! No tokens to resolve`);
   }
 
-  const tokens: T = resolver?.tokens?.length
-    ? mergeTokenSets(
-        resolver.tokens.flatMap((set) => {
-          if (typeof set === 'string') {
-            return getTokens(set);
-          }
-          // Modifiers don’t contribute tokens directly
-          if (set.type === 'modifier') {
-            return [];
-          }
-          const { name, sources } = set;
-
-          if (!sources?.length) {
-            throw new Error(
-              `Token set ${name} can’t contain empty array of sources`,
-            );
-          }
-          return sources.map<T>((id) => getTokens(id));
-        }),
-      )
-    : ({} as T);
-
-  function getTokens(id: string): T {
-    if (!(id in tokenMap)) {
-      throw new Error(`Tokens "${id}" missing in tokenMap!`);
-    }
-    return tokenMap[id];
-  }
-
   return {
-    tokens,
-    getTokens,
-    apply(values: Record<string, string>): T {
-      const modifiers = resolver.tokens.filter(
-        (t): t is Modifier => typeof t !== 'string' && t.type === 'modifier',
-      );
-
-      console.log('modifiers.length', modifiers?.length);
-      console.log('values', values);
-
-      if (!modifiers?.length) {
-        throw new Error(`No modifiers defined, nothing to apply()`);
+    getSet(name) {
+      if (!resolver.sets?.[name]) {
+        throw new Error(`No such set "${name}"`);
       }
-      if (!Object.keys(values ?? {}).length) {
-        throw new Error(`Can’t apply an empty value set`);
+      return resolver.sets[name];
+    },
+    getModifier(name) {
+      if (!resolver.modifiers?.[name]) {
+        throw new Error(`No such modifier "${name}"`);
       }
-
-      let finalTokens = structuredClone(tokens);
-      const modified = new Set<string>();
-
-      for (const [name, value] of Object.entries(values)) {
-        const modifier = modifiers.find((mod) => mod.name === name);
-        // Note: this should be a validation error sooner
-        if (!modifier) {
-          throw new Error(`Modifier ${name} not defined!`);
-        }
-        const modVal = modifier.context[value];
-        if (!modVal) {
-          throw new Error(`Modifier ${name} has no ${value} defined`);
-        }
-        for (const id of modVal) {
-          const modifiedTokens = getTokens(id);
-          for (const id of getTokenIDs(modifiedTokens)) {
-            modified.add(id);
+      return resolver.modifiers[name];
+    },
+    apply(input) {
+      let tokens = {} as T;
+      for (const next of resolver.resolutionOrder) {
+        if (next.$ref.includes("#/sets/")) {
+          const set = this.getSet(next.$ref.replace("#/sets/", ""));
+          for (const source of set.sources) {
+            if (!tokenMapRaw[source.$ref]) {
+              throw new Error(`Could not resolve ${source.$ref}`);
+            }
+            tokens = mergeTokens(tokens, tokenMapRaw[source.$ref]);
           }
-          finalTokens = mergeTokens(finalTokens, modifiedTokens);
+          continue;
+        }
+
+        const modifierName = next.$ref.replace("#/modifiers/", "");
+        const modifier = this.getModifier(modifierName);
+        if (
+          typeof modifier.default === "string" &&
+          !(modifier.default in modifier.contexts)
+        ) {
+          throw new Error(
+            `Invalid default ${modifier.default} is not a valid context`,
+          );
+        }
+        if (
+          typeof input[modifierName] !== "string" &&
+          typeof modifier.default !== "string"
+        ) {
+          throw new Error(
+            `${modifierName}: Expected string, received ${input[modifierName]}`,
+          );
+        }
+        const context =
+          modifier.contexts[input[modifierName] ?? modifier.default];
+        for (const source of context) {
+          if (!tokenMapRaw[source.$ref]) {
+            throw new Error(`Could not resolve ${source.$ref}`);
+          }
+          tokens = mergeTokens(tokens, tokenMapRaw[source.$ref]);
         }
       }
 
-      return {
-        ...finalTokens,
-        $extensions: { modified: [...modified] },
-      };
+      return tokens;
     },
   };
 }

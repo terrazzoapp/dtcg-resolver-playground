@@ -1,0 +1,97 @@
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Friendly name for this resolver."
+    },
+    "description": {
+      "type": "string",
+      "description": "Description for this resolver."
+    },
+    "version": {
+      "type": "string",
+      "description": "MUST be 2025.10.",
+      "enum": ["2025.10"]
+    },
+    "sets": {
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "sources": {
+          "type": "array",
+          "items": [
+            { "$ref": "#/$defs/ReferenceObject" },
+            { "$schema": "./2025.10.format.json" }
+          ]
+        }
+      },
+      "required": ["sources"]
+    },
+    "modifiers": {
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "contexts": {
+          "additionalProperties": {
+            "type": "array",
+            "items": [
+              { "$ref": "#/$defs/ReferenceObject" },
+              { "$schema": "./2025.10.format.json" }
+            ]
+          }
+        },
+        "default": { "type": "string" }
+      },
+      "required": ["contexts"]
+    },
+    "resolutionOrder": {
+      "type": "array",
+      "items": [
+        { "$ref": "#/$defs/SetInline" },
+        { "$ref": "#/$defs/ModifierInline" },
+        { "$ref": "#/$defs/ReferenceObject" }
+      ]
+    }
+  },
+  "required": ["version", "resolutionOrder"],
+  "$defs": {
+    "SetInline": {
+      "properties": {
+        "type": { "type": "string", "enum": ["set"] },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "sources": {
+          "type": "array",
+          "items": [
+            { "$ref": "#/$defs/ReferenceObject" },
+            { "$schema": "./2025.10.format.json" }
+          ]
+        }
+      },
+      "required": ["type", "sources"]
+    },
+    "ModifierInline": {
+      "properties": {
+        "type": { "type": "string", "enum": ["modifier"] },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "contexts": {
+          "additionalProperties": {
+            "type": "array",
+            "items": [
+              { "$ref": "#/$defs/ReferenceObject" },
+              { "$schema": "./2025.10.format.json" }
+            ]
+          }
+        }
+      },
+      "required": ["type", "name", "contexts"]
+    },
+    "ReferenceObject": {
+      "type": "object",
+      "properties": { "$ref": { "type": "string" } },
+      "required": ["$ref"]
+    }
+  }
+}

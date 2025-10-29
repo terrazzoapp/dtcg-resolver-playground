@@ -3,32 +3,32 @@ export type DTCGTokens = Record<string, any>;
 
 export interface Resolver {
   name?: string;
-  version: '2025-10-01';
+  version: "2025.10";
   description?: string;
-  tokens: (string | TokenSet | Modifier)[];
+  sets?: Record<string, TokensSet>;
+  modifiers?: Record<string, Modifier>;
+  resolutionOrder: RefObject[];
 }
 
 export interface ResolverImpl<T extends Record<string, any>> {
-  tokens: T;
-  getTokens: (id: string) => T;
-  apply(
-    values: Record<string, string>,
-  ): T & { $extensions?: { modified: string[] } };
+  getSet: (name: string) => TokensSet;
+  getModifier: (name: string) => Modifier;
+  apply(input: Record<string, string>): T;
 }
 
-export interface TokenSet {
-  type: 'set';
-  name: string;
-  sources: string[];
-  meta?: Record<string, unknown>;
+export interface RefObject {
+  $ref: string;
+}
+
+export interface TokensSet {
+  description?: string;
+  sources: RefObject[];
 }
 
 export interface Modifier {
-  type: 'modifier';
-  name: string;
-  context: Record<string, string[]>;
+  description?: string;
+  contexts: Record<string, RefObject[]>;
   default?: string;
-  meta?: Record<string, unknown>;
 }
 
-export type Preset = 'figma-sds' | 'github-primer';
+export type Preset = "figma-sds" | "github-primer";

@@ -1,25 +1,25 @@
-import { useEffect, useMemo, useState } from 'react';
-import { createRoot } from 'react-dom/client';
-import { ZodError } from 'zod/v4';
-import Nav from './components/nav.js';
-import { createResolver } from './lib/create-resolver';
-import type { Modifier, Preset, Resolver, ResolverImpl } from './lib/types';
-import './styles/global.css';
-import Files from './components/files';
-import ResolverResult from './components/resolver-result';
-import { prettyJSON } from './lib/utils';
-import s from './main.module.css';
+import { useEffect, useMemo, useState } from "react";
+import { createRoot } from "react-dom/client";
+import { ZodError } from "zod/v4";
+import Nav from "./components/nav.js";
+import { createResolver } from "./lib/create-resolver";
+import type { Modifier, Preset, Resolver, ResolverImpl } from "./lib/types";
+import "./styles/global.css";
+import Files from "./components/files";
+import ResolverResult from "./components/resolver-result";
+import { prettyJSON } from "./lib/utils";
+import s from "./main.module.css";
 
-function getModifiers(unparsedJson: string): Modifier[] {
-  return (JSON.parse(unparsedJson) as Resolver).tokens.filter(
-    (t): t is Modifier => typeof t === 'object' && t.type === 'modifier',
-  );
+function getModifiers(unparsedJson: string): (Modifier & { name: string })[] {
+  return Object.entries(
+    (JSON.parse(unparsedJson) as Resolver).modifiers ?? {},
+  ).map(([k, v]) => ({ ...v, name: k }));
 }
 
 // lazy-loaded design systems
 const DESIGN_SYSTEM = {
-  'figma-sds': () => import('./lib/examples/figma-sds.js'),
-  'github-primer': () => import('./lib/examples/github-primer.js'),
+  "figma-sds": () => import("./lib/examples/figma-sds.js"),
+  "github-primer": () => import("./lib/examples/github-primer.js"),
 };
 
 /**
@@ -32,23 +32,28 @@ const DESIGN_SYSTEM = {
  * thoe will add up quickly as more are added.
  */
 function App() {
-  const [preset, setPreset] = useState<Preset>('github-primer');
+  const [preset, setPreset] = useState<Preset>("github-primer");
   const [files, setFiles] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [defaultInput, setDefaultInput] = useState<Record<string, string>>({});
+  const [input, setInput] = useState<Record<string, string>>({});
   const resolver = useMemo<ResolverImpl<Record<string, any>>>(
     () =>
       // loading hack: fall back to placeholder during initial load
       Object.keys(files).length
         ? resolverFromFiles(files)
-        : { tokens: {}, getTokens: () => ({}), apply: () => ({}) },
+        : {
+            getSet: () => ({ sources: [] }),
+            getModifier: () => ({ contexts: {} }),
+            apply: () => ({}),
+          },
     [files],
   );
   const modifiers = useMemo(
     () =>
       // loading hack: fall back to placeholder during initial load
-      files['resolver.json'] ? getModifiers(files['resolver.json']) : [],
-    [JSON.stringify(files['resolver.json'])],
+      files["resolver.json"] ? getModifiers(files["resolver.json"]) : [],
+    [JSON.stringify(files["resolver.json"])],
   );
 
   useEffect(() => {
@@ -67,13 +72,14 @@ function App() {
       setFiles(formatted);
 
       // reset modifier values
-      const nextValues = Object.fromEntries(
-        getModifiers(mod.default['resolver.json'])?.map((m) => [
-          m.name,
-          Object.keys(m.context)[0],
-        ]) ?? [],
-      );
-      setValues(nextValues);
+      const nextInput: Record<string, string> = {};
+      for (const [k, v] of Object.entries(
+        JSON.parse(mod.default["resolver.json"]).modifiers,
+      )) {
+        nextInput[k] = Object.keys((v as Modifier).contexts)[0];
+      }
+      setDefaultInput(nextInput);
+      setInput(nextInput);
     })();
   }, [preset]);
 
@@ -104,7 +110,7 @@ function App() {
                 ...files,
                 [filename]: JSON.parse(contents),
               });
-              tryResolver.apply(values); // TODO: improve resolver to be able to throw errors earlier (we only do this to
+              tryResolver.apply(input); // TODO: improve resolver to be able to throw errors earlier
               setFiles((value) => ({ ...value, [filename]: contents }));
             } catch (err) {
               const message =
@@ -112,7 +118,7 @@ function App() {
                 Array.isArray(JSON.parse(err.message))
                   ? JSON.parse(err.message)
                       .map((e) => e.message)
-                      .join('\n')
+                      .join("\n")
                   : String(err);
               setErrors((value) => ({ ...value, [filename]: message }));
             }
@@ -123,8 +129,9 @@ function App() {
         <ResolverResult
           resolver={resolver}
           modifiers={modifiers}
-          values={values}
-          setValues={setValues}
+          defaultInput={defaultInput}
+          input={input}
+          setInput={setInput}
         />
       </div>
     </div>
@@ -137,7 +144,7 @@ function resolverFromFiles<T extends Record<string, any>>(
   const tokenMap: Record<string, any> = {};
   let resolver = {} as Resolver;
   for (const [k, v] of Object.entries(files)) {
-    if (k === 'resolver.json') {
+    if (k === "resolver.json") {
       resolver = JSON.parse(v);
     } else {
       tokenMap[k] = JSON.parse(v);
@@ -146,5 +153,5 @@ function resolverFromFiles<T extends Record<string, any>>(
   return createResolver(tokenMap, resolver);
 }
 
-const root = createRoot(document.getElementById('app')!);
+const root = createRoot(document.getElementById("app")!);
 root.render(<App />);
