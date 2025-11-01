@@ -1,4 +1,8 @@
 {
+  "type": "object",
+  "additionalProperties": {
+    "$ref": "#/$defs/Group"
+  },
   "$defs": {
     "Group": {
       "type": "object",

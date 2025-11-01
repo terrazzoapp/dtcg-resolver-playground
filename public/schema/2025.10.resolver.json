@@ -15,6 +15,31 @@
       "enum": ["2025.10"]
     },
     "sets": {
+      "description": "Key–value mapping of sets.",
+      "additionalProperties": {
+        "$ref": "#/$defs/Set"
+      }
+    },
+    "modifiers": {
+      "description": "Key–value mapping of sets.",
+      "additionalProperties": {
+        "$ref": "#/$defs/Modifier"
+      }
+    },
+    "resolutionOrder": {
+      "description": "The final resolution order for this resolver.",
+      "type": "array",
+      "items": [
+        { "$ref": "#/$defs/SetInline" },
+        { "$ref": "#/$defs/ModifierInline" },
+        { "$ref": "#/$defs/ReferenceObject" }
+      ]
+    }
+  },
+  "required": ["version", "resolutionOrder"],
+  "$defs": {
+    "Set": {
+      "description": "A set is a collection of tokens where everything is included.",
       "type": "object",
       "properties": {
         "description": { "type": "string" },
@@ -28,7 +53,24 @@
       },
       "required": ["sources"]
     },
-    "modifiers": {
+    "SetInline": {
+      "description": "A set is a collection of tokens where everything is included.",
+      "properties": {
+        "type": { "type": "string", "enum": ["set"] },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "sources": {
+          "type": "array",
+          "items": [
+            { "$ref": "#/$defs/ReferenceObject" },
+            { "$schema": "./2025.10.format.json" }
+          ]
+        }
+      },
+      "required": ["type", "sources"]
+    },
+    "Modifier": {
+      "description": "A modifier describes conditionally-included tokens.",
       "type": "object",
       "properties": {
         "description": { "type": "string" },
@@ -45,33 +87,8 @@
       },
       "required": ["contexts"]
     },
-    "resolutionOrder": {
-      "type": "array",
-      "items": [
-        { "$ref": "#/$defs/SetInline" },
-        { "$ref": "#/$defs/ModifierInline" },
-        { "$ref": "#/$defs/ReferenceObject" }
-      ]
-    }
-  },
-  "required": ["version", "resolutionOrder"],
-  "$defs": {
-    "SetInline": {
-      "properties": {
-        "type": { "type": "string", "enum": ["set"] },
-        "name": { "type": "string" },
-        "description": { "type": "string" },
-        "sources": {
-          "type": "array",
-          "items": [
-            { "$ref": "#/$defs/ReferenceObject" },
-            { "$schema": "./2025.10.format.json" }
-          ]
-        }
-      },
-      "required": ["type", "sources"]
-    },
     "ModifierInline": {
+      "description": "A modifier describes conditionally-included tokens.",
       "properties": {
         "type": { "type": "string", "enum": ["modifier"] },
         "name": { "type": "string" },

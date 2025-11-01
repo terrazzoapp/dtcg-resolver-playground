@@ -250,28 +250,45 @@ exports[`prettyJSON > Figma SDS > base/typography.json 1`] = `
 exports[`prettyJSON > Figma SDS > resolver.json 1`] = `
 "{
   "name": "Figma SDS",
-  "version": "2025-10-01",
-  "tokens": [
-    {
-      "type": "set",
-      "name": "base",
+  "description": "Simple Design System",
+  "version": "2025.10",
+  "sets": {
+    "base": {
       "sources": [
-        "base/color.json",
-        "base/size.json",
-        "base/typography.json"
+        {
+          "$ref": "base/color.json"
+        },
+        {
+          "$ref": "base/size.json"
+        },
+        {
+          "$ref": "base/typography.json"
+        }
       ]
-    },
-    {
-      "type": "modifier",
-      "name": "theme",
-      "context": {
+    }
+  },
+  "modifiers": {
+    "theme": {
+      "contexts": {
         "light": [
-          "theme/light.json"
+          {
+            "$ref": "theme/light.json"
+          }
         ],
         "dark": [
-          "theme/dark.json"
+          {
+            "$ref": "theme/dark.json"
+          }
         ]
       }
+    }
+  },
+  "resolutionOrder": [
+    {
+      "$ref": "#/sets/base"
+    },
+    {
+      "$ref": "#/modifiers/theme"
     }
   ]
 }"
@@ -3196,80 +3213,159 @@ exports[`prettyJSON > GitHub Primer > functional/typography/typography.json 1`] 
 exports[`prettyJSON > GitHub Primer > resolver.json 1`] = `
 "{
   "name": "GitHub Primer",
-  "version": "2025-10-01",
-  "tokens": [
-    {
-      "type": "set",
-      "name": "base",
+  "description": "GitHub’s official design system",
+  "version": "2025.10",
+  "sets": {
+    "base": {
       "sources": [
-        "base/motion/easing.json",
-        "base/motion/timing.json",
-        "base/size/size.json",
-        "base/typography/typography.json",
-        "base/color/light/light.json",
-        "base/color/light/display-light.json"
+        {
+          "$ref": "base/motion/easing.json"
+        },
+        {
+          "$ref": "base/motion/timing.json"
+        },
+        {
+          "$ref": "base/size/size.json"
+        },
+        {
+          "$ref": "base/typography/typography.json"
+        },
+        {
+          "$ref": "base/color/light/light.json"
+        },
+        {
+          "$ref": "base/color/light/display-light.json"
+        }
       ]
     },
-    {
-      "type": "set",
-      "name": "functional",
+    "functional": {
       "sources": [
-        "functional/border/border.json",
-        "functional/color/bgColor.json",
-        "functional/color/borderColor.json",
-        "functional/color/control.json",
-        "functional/color/data-vis.json",
-        "functional/color/display.json",
-        "functional/color/fgColor.json",
-        "functional/color/focus.json",
-        "functional/color/selection.json",
-        "functional/color/syntax.json",
-        "functional/shadow/shadow.json",
-        "functional/size/size.json",
-        "functional/size/viewport.json",
-        "functional/typography/typography.json"
+        {
+          "$ref": "functional/border/border.json"
+        },
+        {
+          "$ref": "functional/color/bgColor.json"
+        },
+        {
+          "$ref": "functional/color/borderColor.json"
+        },
+        {
+          "$ref": "functional/color/control.json"
+        },
+        {
+          "$ref": "functional/color/data-vis.json"
+        },
+        {
+          "$ref": "functional/color/display.json"
+        },
+        {
+          "$ref": "functional/color/fgColor.json"
+        },
+        {
+          "$ref": "functional/color/focus.json"
+        },
+        {
+          "$ref": "functional/color/selection.json"
+        },
+        {
+          "$ref": "functional/color/syntax.json"
+        },
+        {
+          "$ref": "functional/shadow/shadow.json"
+        },
+        {
+          "$ref": "functional/size/size.json"
+        },
+        {
+          "$ref": "functional/size/viewport.json"
+        },
+        {
+          "$ref": "functional/typography/typography.json"
+        }
       ]
-    },
-    {
-      "type": "modifier",
-      "name": "theme",
-      "context": {
+    }
+  },
+  "modifiers": {
+    "theme": {
+      "contexts": {
         "light": [],
-        "light (high contrast)": [
-          "base/color/light/light.high-contrast.json",
-          "functional/color/control.light-high-contrast.json",
-          "functional/color/fgColor.light-high-contrast.json"
+        "light-hc": [
+          {
+            "$ref": "base/color/light/light.high-contrast.json"
+          },
+          {
+            "$ref": "functional/color/control.light-high-contrast.json"
+          },
+          {
+            "$ref": "functional/color/fgColor.light-high-contrast.json"
+          }
         ],
         "dark": [
-          "base/color/dark/dark.json",
-          "base/color/dark/display-dark.json",
-          "functional/color/fgColor.dark.json",
-          "functional/color/control.dark.json"
+          {
+            "$ref": "base/color/dark/dark.json"
+          },
+          {
+            "$ref": "base/color/dark/display-dark.json"
+          },
+          {
+            "$ref": "functional/color/fgColor.dark.json"
+          },
+          {
+            "$ref": "functional/color/control.dark.json"
+          }
         ],
-        "dark dimmed": [
-          "base/color/dark/dark.dimmed.json",
-          "functional/color/control.dark-dimmed.json",
-          "functional/color/fgColor.dark-dimmed.json"
+        "dark-dimmed": [
+          {
+            "$ref": "base/color/dark/dark.dimmed.json"
+          },
+          {
+            "$ref": "functional/color/control.dark-dimmed.json"
+          },
+          {
+            "$ref": "functional/color/fgColor.dark-dimmed.json"
+          }
         ],
-        "dark (high contrast)": [
-          "base/color/dark/dark.high-contrast.json",
-          "functional/color/control.dark-high-contrast.json",
-          "functional/color/fgColor.dark-high-contrast.json"
+        "dark-hc": [
+          {
+            "$ref": "base/color/dark/dark.high-contrast.json"
+          },
+          {
+            "$ref": "functional/color/control.dark-high-contrast.json"
+          },
+          {
+            "$ref": "functional/color/fgColor.dark-high-contrast.json"
+          }
         ]
       }
     },
-    {
-      "type": "modifier",
-      "name": "size",
-      "context": {
+    "size": {
+      "contexts": {
         "default": [],
         "coarse": [
-          "functional/size/size-coarse.json"
+          {
+            "$ref": "functional/size/size-coarse.json"
+          }
         ],
         "fine": [
-          "functional/size/size-fine.json"
+          {
+            "$ref": "functional/size/size-fine.json"
+          }
         ]
       }
+    }
+  },
+  "resolutionOrder": [
+    {
+      "$ref": "#/sets/base"
+    },
+    {
+      "$ref": "#/sets/functional"
+    },
+    {
+      "$ref": "#/modifiers/theme"
+    },
+    {
+      "$ref": "#/modifiers/size"
     }
   ]
 }"
